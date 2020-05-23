@@ -12,5 +12,8 @@
 #	done
 #done
 
-python preprocess.py -train_src data/src-train-bpe.txt -train_tgt data/tgt-train-bpe.txt -valid_src data/src-val-bpe.txt -valid_tgt data/tgt-val.txt -save_data data/en2zh -overwrite \
+python preprocess.py \
+	-train_src data/zh-train-bpe.txt -train_tgt data/en-train-bpe.txt \
+	-valid_src data/zh-val-bpe.txt -valid_tgt data/en-val-bpe.txt \
+	-save_data data/zh2en -overwrite \
 	-src_seq_length 200 -tgt_seq_length 200
