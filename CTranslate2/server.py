@@ -9,14 +9,14 @@ CONFIG_TRANSLATOR = {
     "device_index":0,           # The index of the device to place this translator on.
     "compute_type":"default",   # The computation type: "default", "int8", "int16", or "float".
     "inter_threads":1,          # Maximum number of concurrent translations (CPU only).
-    "intra_threads":4           # Threads to use per translation (CPU only). 
+    "intra_threads":10           # Threads to use per translation (CPU only). 
 }
 
 CONFIG_TRANSLATE = {
     "target_prefix":None,           # An optional list of list of string.
     "max_batch_size":0,             # Maximum batch size to run the model on.
     "batch_type":"examples",        # Whether max_batch_size is the number of examples or tokens.
-    "beam_size":2,                  # Beam size (set 1 to run greedy search).
+    "beam_size":5,                  # Beam size (set 1 to run greedy search).
     "num_hypotheses":1,             # Number of hypotheses to return (should be <= beam_size).
     "length_penalty":0,             # Length penalty constant to use during beam search.
     "coverage_penalty":0,           # Converage penalty constant to use during beam search.
@@ -69,4 +69,6 @@ if __name__ == '__main__':
     多年 来 ， 中国 相关 书籍 的 读者 看到 越来越 多 有关 共产主义 革命 — — 从 1949 年 夺取 政权 到 1989 年 军队 镇压 天安门 抗议者 — — 的 残暴 性 和 破坏性 。 这 两本书 通过 真实 、 哀伤 的 文字 呈现 了 比 我们 想象 中 更糟 的 情景 。
     """.replace(' ', '').split('\n')
 
-    print(server.predict(text_list))
+    result1 = server.predict(text_list)
+    result2 = server.predict(text_list * 10)
+    print(result1)

@@ -1,0 +1,4 @@
+jieba 
+pyonmttok
+flask
+flask_cors
