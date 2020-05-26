@@ -1,7 +1,7 @@
-python scrpit/prep.py
+#python scrpit/prep.py
 
-python tools/learn_bpe.py --symbols 35000 --input data/en-train.txt --output data/en.bpe
-python tools/learn_bpe.py --symbols 35000 --input data/zh-train.txt --output data/zh.bpe
+#python tools/learn_bpe.py --symbols 35000 --input data/en-train.txt --output data/en.bpe
+#python tools/learn_bpe.py --symbols 35000 --input data/zh-train.txt --output data/zh.bpe
 echo "finish bpe"
 
 for TYPE in en zh;
@@ -10,6 +10,7 @@ do
 	do
 		echo apply bpe on data/$TYPE-$DATA.txt
 		python tools/apply_bpe.py --code data/$TYPE.bpe --input data/$TYPE-$DATA.txt --output data/$TYPE-$DATA-bpe.txt 
+		python scrpit/process_tag.py data/$TYPE-$DATA-bpe.txt 
 	done
 done
 
