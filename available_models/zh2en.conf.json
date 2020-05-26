@@ -1,0 +1,21 @@
+{
+    "models_root": "./available_models",
+    "models": [
+        {
+            "id": 0,
+            "model": "zh2en_step_50000.pt",
+            "timeout": 600,
+            "on_timeout": "unload",
+            "load": true,
+            "opt": {
+                "gpu": 0,
+                "beam_size": 5
+            },
+            "tokenizer": {
+                "type": "pyonmttok",
+				"mode": "none",
+                "params": {"bpe_model_path": "zh.bpe"}
+            }
+        }
+    ]
+}

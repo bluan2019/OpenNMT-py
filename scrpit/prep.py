@@ -24,8 +24,8 @@ def parallel(func: callable, data:list, num_worker:int=3, debug=False) -> callab
 
 
 if __name__ == '__main__':
-    path_en  = '/data/lbh/translate/wmt/en-zh/UNv1.0.en-zh.en'
-    path_zh  = '/data/lbh/translate/wmt/en-zh/UNv1.0.en-zh.zh'
+    path_en  = '/data/lbh/translate/all_1kw_tagged/all.en'
+    path_zh  = '/data/lbh/translate/all_1kw_tagged/all.zh'
     path_out = "data/"
     
     data_pair = [(en.strip(), zh.strip()) for en, zh in \
@@ -41,8 +41,8 @@ if __name__ == '__main__':
     def cut_sent(data):
         return [[e.strip() for e in jieba.lcut(line) if e.strip()] for line in tqdm(data)]
     
-    data_en = parallel(cut_sent, data_en, num_worker=40)
-    data_zh = parallel(cut_sent, data_zh, num_worker=40)
+    data_en = parallel(cut_sent, data_en, num_worker=30)
+    data_zh = parallel(cut_sent, data_zh, num_worker=30)
     
     # filter sents
     max_seq_len = 200
