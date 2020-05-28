@@ -4,6 +4,9 @@ from typing import List
 import jieba
 import time
 from tools.apply_bpe import BPE
+from process_tag import process_tag
+import re
+from collections import defaultdict
 
 CONFIG_TRANSLATOR = {
     'device':"auto",            # The device to use: "cpu", "cuda", or "auto".
@@ -31,6 +34,44 @@ CONFIG_TRANSLATE = {
     "sampling_temperature":1        # Sampling temperature to generate more random samples.
 }
 
+
+def remove_repeat_token(sentence, max_ngram_length = 4):
+    final_merge_sent = sentence.split(' ')
+    if len(final_merge_sent) < 3:
+        return sentence
+    max_ngram_length = min(max_ngram_length, len(sentence))
+    for i in range(max_ngram_length, 0, -1):
+        start = 0
+        end = len(final_merge_sent) - i + 1
+        ngrams = []
+        while start < end:
+            ngrams.append(final_merge_sent[start: start + i])
+            start += 1
+        result = []
+        for cur_word in ngrams:
+            result.append(cur_word)
+            if len(result) > i:
+                pre_word = result[len(result) - i - 1]
+                if pre_word == cur_word:
+                    for k in range(i):
+                        result.pop()
+
+        cur_merge_sent = []
+        for word in result:
+            if not cur_merge_sent:
+                cur_merge_sent.extend(word)
+            else:
+                cur_merge_sent.append(word[-1])
+        final_merge_sent = cur_merge_sent
+
+    return ' '.join(final_merge_sent)
+
+def cut_sent(text:str, pattern="([。])"):
+    sents = re.split(pattern, text) + [""]
+    sents = ["".join(i) for i in zip(sents[0::2],sents[1::2])]
+    return sents
+
+
 class Server:
     def __init__(self, path_translator, path_bpe):
         self.translator = ctranslate2.Translator(path_translator, **CONFIG_TRANSLATOR)
@@ -38,14 +79,34 @@ class Server:
 
     def predict(self, text_list: List[str]) -> List[str]:
         t1 = time.time()
+        _text_list, _id = [], []
+        for i, text in enumerate(text_list):
+            text = cut_sent(text)
+            _id.extend([i] * len(text))
+            _text_list.extend(text)
+        
+        text_list = _text_list
+
         text_list = [' '.join([e.strip() for e in jieba.lcut(line) if e.strip()]) for line in text_list]
         t2 = time.time()
-        text_list = [self.bpe.segment(text).strip().split(' ') for text in text_list]
+        text_list = [process_tag(self.bpe.segment(text).strip()).split(' ') for text in text_list]
         totol_tokens = sum([len(e) for e in text_list])
         t3 = time.time()
+        print(f'input: {text_list}')
         result = self.translator.translate_batch(text_list, **CONFIG_TRANSLATE)
         t4 = time.time()
         result = [' '.join(d[0]["tokens"]).replace('@@ ', '') for d in result]
+        print(f'output: {result}')
+        result = [remove_repeat_token(text) for text in result]
+        print(f'remove repeat: {result}')
+        
+        _result = defaultdict(list)
+        for i, text in zip(_id, result):
+            print(i, text)
+            _result[i].append(text)
+        
+        result = [" ".join(v) for k, v in _result.items()]
+
         t5 = time.time()
         
         report = f'''
